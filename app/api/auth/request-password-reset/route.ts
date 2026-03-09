@@ -24,19 +24,25 @@ export async function POST(req: Request) {
     },
   });
 
-  await sendEmail({
-    to: email,
-    subject: "CookieLedger: redefinicao de senha",
-    text:
-      `Ola, ${user.name}.\n\n` +
-      `Seu codigo para redefinir a senha e: ${code}\n\n` +
-      `Este codigo expira em 15 minutos.\n` +
-      `Se voce nao solicitou este codigo, ignore esta mensagem e mantenha sua conta segura.\n\n` +
-      `Equipe CookieLedger`,
-  });
+  try {
+    await sendEmail({
+      to: email,
+      subject: "CookieLedger: redefinicao de senha",
+      text:
+        `Ola, ${user.name}.\n\n` +
+        `Seu codigo para redefinir a senha e: ${code}\n\n` +
+        `Este codigo expira em 15 minutos.\n` +
+        `Se voce nao solicitou este codigo, ignore esta mensagem e mantenha sua conta segura.\n\n` +
+        `Equipe CookieLedger`,
+    });
+  } catch {
+    return Response.json(
+      {
+        error: "Nao foi possivel enviar o codigo agora. Tente novamente.",
+      },
+      { status: 503 },
+    );
+  }
 
-  return Response.json({
-    ok: true,
-    ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
-  });
+  return Response.json({ ok: true });
 }

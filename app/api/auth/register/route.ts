@@ -57,7 +57,6 @@ export async function POST(req: Request) {
         {
           error: "Conta criada, mas nao foi possivel enviar o email agora. Tente reenviar o codigo.",
           requiresEmailVerification: true,
-          ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
         },
         { status: 503 },
       );
@@ -67,7 +66,6 @@ export async function POST(req: Request) {
       {
         user,
         requiresEmailVerification: true,
-        ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
       },
       { status: 201 },
     );

@@ -87,7 +87,7 @@ export default function LoginPage() {
 
       if (!res.ok) {
         if (data?.requiresEmailVerification) {
-          setInfo(data?.debugCode ? `Codigo de teste: ${String(data.debugCode)}` : "Codigo enviado por email. Verifique para concluir o cadastro.");
+          setInfo("Codigo enviado por email. Verifique para concluir o cadastro.");
           setMode("verify");
           return;
         }
@@ -99,7 +99,7 @@ export default function LoginPage() {
       }
 
       if (data?.requiresEmailVerification) {
-        setInfo(data?.debugCode ? `Codigo de teste: ${String(data.debugCode)}` : "Codigo enviado por email. Verifique para concluir o cadastro.");
+        setInfo("Codigo enviado por email. Verifique para concluir o cadastro.");
         setMode("verify");
         return;
       }
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
     try {
       const { data } = await post("/api/auth/request-password-reset", { email });
-      setInfo(data?.debugCode ? `Codigo de redefinicao (teste): ${String(data.debugCode)}` : "Enviamos um codigo para seu email.");
+      setInfo("Enviamos um codigo para seu email.");
       setMode("reset");
     } catch (e) {
       const detail = e instanceof Error ? e.message : "erro desconhecido";
@@ -245,7 +245,7 @@ export default function LoginPage() {
                   setInfo("");
                   try {
                     const { data } = await post("/api/auth/request-verification-code", { email });
-                    setInfo(data?.debugCode ? `Novo codigo (teste): ${String(data.debugCode)}` : "Novo codigo enviado para seu email.");
+                    setInfo("Novo codigo enviado para seu email.");
                   } catch {
                     setError("Nao foi possivel reenviar codigo agora.");
                   } finally {
@@ -283,3 +283,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

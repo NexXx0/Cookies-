@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { createNumericCode, hashCode, codeExpiryDate } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 
@@ -36,14 +36,13 @@ export async function POST(req: Request) {
         `Equipe CookieLedger`,
     });
   } catch {
-    return Response.json({
-      error: "Nao foi possivel enviar o codigo agora. Tente novamente.",
-      ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
-    }, { status: 503 });
+    return Response.json(
+      {
+        error: "Nao foi possivel enviar o codigo agora. Tente novamente.",
+      },
+      { status: 503 },
+    );
   }
 
-  return Response.json({
-    ok: true,
-    ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
-  });
+  return Response.json({ ok: true });
 }

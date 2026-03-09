@@ -84,7 +84,6 @@ export async function POST(req: Request) {
           {
             error: "Email nao verificado e nao foi possivel reenviar o codigo agora.",
             requiresEmailVerification: true,
-            ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
           },
           { status: 503 },
         );
@@ -94,7 +93,6 @@ export async function POST(req: Request) {
         {
           error: "Email nao verificado. Enviamos um novo codigo.",
           requiresEmailVerification: true,
-          ...(process.env.NODE_ENV !== "production" ? { debugCode: code } : {}),
         },
         { status: 403 },
       );

@@ -69,20 +69,32 @@ function parseAmountToGrams(amountRaw: string, unitRaw: string) {
   return NaN;
 }
 
-function extractIngredientName(line: string, quantityTokenEnd: number) {
-  let rest = line.slice(quantityTokenEnd).trim();
+function extractIngredientName(line: string, amountMatch: RegExpMatchArray & { index: number }) {
+  let work = line
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/≈.*$/g, " ")
+    .replace(/[–—-].*$/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  rest = rest.replace(/^de\s+/i, "");
-  rest = rest.replace(/^do\s+/i, "");
-  rest = rest.replace(/^da\s+/i, "");
-  rest = rest.replace(/^dos\s+/i, "");
-  rest = rest.replace(/^das\s+/i, "");
+  const deMatch = work.match(/\b(?:de|do|da|dos|das)\s+(.+)$/i);
+  if (deMatch?.[1]) {
+    return deMatch[1].replace(/\s+/g, " ").trim();
+  }
 
-  rest = rest.replace(/\([^)]*\)/g, " ");
-  rest = rest.replace(/≈.*$/g, " ");
-  rest = rest.replace(/[–—-].*$/g, " ");
+  const amountToken = amountMatch[0];
+  work = work.replace(amountToken, " ").replace(/\s+/g, " ").trim();
+  work = work.replace(/^(?:de|do|da|dos|das)\s+/i, "");
+  return work.replace(/\s+/g, " ").trim();
+}
 
-  return rest.replace(/\s+/g, " ").trim();
+function isLikelyIngredientName(name: string) {
+  const normalized = normalizeText(name);
+  if (!normalized) return false;
+  if (!/[a-z]/i.test(normalized)) return false;
+
+  const stopwords = new Set(["g", "kg", "ml", "gr", "grama", "gramas", "quilo", "quilos", "un", "unidade"]);
+  return !stopwords.has(normalized);
 }
 
 function tryMatchIngredientId(parsedName: string, ingredientes: Ingredient[]) {
@@ -114,8 +126,8 @@ function parseReadyText(text: string, ingredientes: Ingredient[]): ParsedReadyLi
     const grams = parseAmountToGrams(amountMatch[1], amountMatch[2]);
     if (!Number.isFinite(grams) || grams <= 0) continue;
 
-    const name = extractIngredientName(line, amountMatch.index + amountMatch[0].length);
-    if (!name) continue;
+    const name = extractIngredientName(line, amountMatch as RegExpMatchArray & { index: number });
+    if (!isLikelyIngredientName(name)) continue;
 
     parsed.push({
       sourceLine: line,
@@ -143,6 +155,7 @@ export default function ReceitasPage() {
   const [message, setMessage] = useState("");
   const [inputMode, setInputMode] = useState<RecipeInputMode>("manual");
   const [readyText, setReadyText] = useState("");
+  const [unitWeightGrams, setUnitWeightGrams] = useState("100");
 
   const loadData = async () => {
     setLoading(true);
@@ -251,7 +264,7 @@ export default function ReceitasPage() {
       pushAppNotifications(
         createdNames.map((nameItem) => ({
           title: `Ingrediente novo: ${nameItem}`,
-          message: "Defina preco e quantidade de compra em Ingredientes. Ex: 1L de leite = R$7.",
+          message: "Defina preco e quantidade de compra em Ingredientes.",
           href: "/ingredientes",
         })),
       );
@@ -348,6 +361,29 @@ export default function ReceitasPage() {
             </div>
           ) : (
             <div className="panel section" style={{ boxShadow: "none", padding: 12 }}>
+              <div className="grid cards-2" style={{ marginBottom: 8 }}>
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="Rende quantos cookies (ex: 30)"
+                  value={yieldQuantity}
+                  onChange={(e) => setYieldQuantity(e.target.value)}
+                  min={1}
+                  step="1"
+                />
+                <input
+                  className="input"
+                  type="number"
+                  placeholder="Peso por cookie em gramas (ex: 100)"
+                  value={unitWeightGrams}
+                  onChange={(e) => setUnitWeightGrams(e.target.value)}
+                  min={1}
+                  step="0.1"
+                />
+              </div>
+              <p className="muted" style={{ margin: "0 0 8px" }}>
+                Esta receita colada rende {Math.max(1, Math.floor(Number(yieldQuantity) || 1))} cookies de {Math.max(1, Number(unitWeightGrams) || 1).toFixed(0)} g cada.
+              </p>
               <p className="stat-label" style={{ marginBottom: 8 }}>Cole a receita completa aqui (ingredientes com g/kg/ml).</p>
               <textarea
                 className="input"
@@ -512,5 +548,8 @@ export default function ReceitasPage() {
     </AppShell>
   );
 }
+
+
+
 
 
