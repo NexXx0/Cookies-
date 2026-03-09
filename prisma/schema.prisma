@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String                  @id @default(cuid())
+  email           String                  @unique
+  name            String
+  passwordHash    String
+  emailVerifiedAt DateTime?
+  ingredients     Ingredient[]
+  recipes         Recipe[]
+  sales           Sale[]
+  sessions        Session[]
+  emailCodes      EmailVerificationCode[]
+  resetCodes      PasswordResetCode[]
+}
+
+model Ingredient {
+  id       String             @id @default(cuid())
+  userId   String
+  name     String
+  price    Float
+  quantity Float
+  unit     String             @default("g")
+  recipes  RecipeIngredient[]
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Recipe {
+  id            String             @id @default(cuid())
+  userId        String
+  name          String
+  yieldQuantity Int                @default(1)
+  priceSell     Float
+  cost          Float
+  image         String?
+  ingredients   RecipeIngredient[]
+  sales         Sale[]
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RecipeIngredient {
+  id           String @id @default(cuid())
+  recipeId     String
+  ingredientId String
+  grams        Float
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id        String   @id @default(cuid())
+  userId    String
+  recipeId  String
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailVerificationCode {
+  id        String   @id @default(cuid())
+  userId    String
+  codeHash  String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model PasswordResetCode {
+  id        String   @id @default(cuid())
+  userId    String
+  codeHash  String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
