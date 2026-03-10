@@ -10904,6 +10904,9 @@ export namespace Prisma {
     customerName: string | null
     address: string | null
     phone: string | null
+    contactEmail: string | null
+    cpf: string | null
+    paymentMethod: string | null
     status: $Enums.OrderStatus | null
     createdAt: Date | null
   }
@@ -10914,6 +10917,9 @@ export namespace Prisma {
     customerName: string | null
     address: string | null
     phone: string | null
+    contactEmail: string | null
+    cpf: string | null
+    paymentMethod: string | null
     status: $Enums.OrderStatus | null
     createdAt: Date | null
   }
@@ -10924,6 +10930,9 @@ export namespace Prisma {
     customerName: number
     address: number
     phone: number
+    contactEmail: number
+    cpf: number
+    paymentMethod: number
     status: number
     createdAt: number
     _all: number
@@ -10936,6 +10945,9 @@ export namespace Prisma {
     customerName?: true
     address?: true
     phone?: true
+    contactEmail?: true
+    cpf?: true
+    paymentMethod?: true
     status?: true
     createdAt?: true
   }
@@ -10946,6 +10958,9 @@ export namespace Prisma {
     customerName?: true
     address?: true
     phone?: true
+    contactEmail?: true
+    cpf?: true
+    paymentMethod?: true
     status?: true
     createdAt?: true
   }
@@ -10956,6 +10971,9 @@ export namespace Prisma {
     customerName?: true
     address?: true
     phone?: true
+    contactEmail?: true
+    cpf?: true
+    paymentMethod?: true
     status?: true
     createdAt?: true
     _all?: true
@@ -11039,6 +11057,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status: $Enums.OrderStatus
     createdAt: Date
     _count: OrderCountAggregateOutputType | null
@@ -11066,6 +11087,9 @@ export namespace Prisma {
     customerName?: boolean
     address?: boolean
     phone?: boolean
+    contactEmail?: boolean
+    cpf?: boolean
+    paymentMethod?: boolean
     status?: boolean
     createdAt?: boolean
     items?: boolean | Order$itemsArgs<ExtArgs>
@@ -11079,6 +11103,9 @@ export namespace Prisma {
     customerName?: boolean
     address?: boolean
     phone?: boolean
+    contactEmail?: boolean
+    cpf?: boolean
+    paymentMethod?: boolean
     status?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -11090,6 +11117,9 @@ export namespace Prisma {
     customerName?: boolean
     address?: boolean
     phone?: boolean
+    contactEmail?: boolean
+    cpf?: boolean
+    paymentMethod?: boolean
     status?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -11101,11 +11131,14 @@ export namespace Prisma {
     customerName?: boolean
     address?: boolean
     phone?: boolean
+    contactEmail?: boolean
+    cpf?: boolean
+    paymentMethod?: boolean
     status?: boolean
     createdAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "customerName" | "address" | "phone" | "status" | "createdAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "customerName" | "address" | "phone" | "contactEmail" | "cpf" | "paymentMethod" | "status" | "createdAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | Order$itemsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -11130,6 +11163,9 @@ export namespace Prisma {
       customerName: string
       address: string
       phone: string
+      contactEmail: string
+      cpf: string
+      paymentMethod: string
       status: $Enums.OrderStatus
       createdAt: Date
     }, ExtArgs["result"]["order"]>
@@ -11562,6 +11598,9 @@ export namespace Prisma {
     readonly customerName: FieldRef<"Order", 'String'>
     readonly address: FieldRef<"Order", 'String'>
     readonly phone: FieldRef<"Order", 'String'>
+    readonly contactEmail: FieldRef<"Order", 'String'>
+    readonly cpf: FieldRef<"Order", 'String'>
+    readonly paymentMethod: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'OrderStatus'>
     readonly createdAt: FieldRef<"Order", 'DateTime'>
   }
@@ -13232,6 +13271,9 @@ export namespace Prisma {
     customerName: 'customerName',
     address: 'address',
     phone: 'phone',
+    contactEmail: 'contactEmail',
+    cpf: 'cpf',
+    paymentMethod: 'paymentMethod',
     status: 'status',
     createdAt: 'createdAt'
   };
@@ -13871,6 +13913,9 @@ export namespace Prisma {
     customerName?: StringFilter<"Order"> | string
     address?: StringFilter<"Order"> | string
     phone?: StringFilter<"Order"> | string
+    contactEmail?: StringFilter<"Order"> | string
+    cpf?: StringFilter<"Order"> | string
+    paymentMethod?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     createdAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
@@ -13883,6 +13928,9 @@ export namespace Prisma {
     customerName?: SortOrder
     address?: SortOrder
     phone?: SortOrder
+    contactEmail?: SortOrder
+    cpf?: SortOrder
+    paymentMethod?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     items?: OrderItemOrderByRelationAggregateInput
@@ -13898,6 +13946,9 @@ export namespace Prisma {
     customerName?: StringFilter<"Order"> | string
     address?: StringFilter<"Order"> | string
     phone?: StringFilter<"Order"> | string
+    contactEmail?: StringFilter<"Order"> | string
+    cpf?: StringFilter<"Order"> | string
+    paymentMethod?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     createdAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
@@ -13910,6 +13961,9 @@ export namespace Prisma {
     customerName?: SortOrder
     address?: SortOrder
     phone?: SortOrder
+    contactEmail?: SortOrder
+    cpf?: SortOrder
+    paymentMethod?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     _count?: OrderCountOrderByAggregateInput
@@ -13926,6 +13980,9 @@ export namespace Prisma {
     customerName?: StringWithAggregatesFilter<"Order"> | string
     address?: StringWithAggregatesFilter<"Order"> | string
     phone?: StringWithAggregatesFilter<"Order"> | string
+    contactEmail?: StringWithAggregatesFilter<"Order"> | string
+    cpf?: StringWithAggregatesFilter<"Order"> | string
+    paymentMethod?: StringWithAggregatesFilter<"Order"> | string
     status?: EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
   }
@@ -14518,6 +14575,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
     items?: OrderItemCreateNestedManyWithoutOrderInput
@@ -14530,6 +14590,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -14540,6 +14603,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUpdateManyWithoutOrderNestedInput
@@ -14552,6 +14618,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -14563,6 +14632,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
   }
@@ -14572,6 +14644,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14582,6 +14657,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15185,6 +15263,9 @@ export namespace Prisma {
     customerName?: SortOrder
     address?: SortOrder
     phone?: SortOrder
+    contactEmail?: SortOrder
+    cpf?: SortOrder
+    paymentMethod?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
   }
@@ -15195,6 +15276,9 @@ export namespace Prisma {
     customerName?: SortOrder
     address?: SortOrder
     phone?: SortOrder
+    contactEmail?: SortOrder
+    cpf?: SortOrder
+    paymentMethod?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
   }
@@ -15205,6 +15289,9 @@ export namespace Prisma {
     customerName?: SortOrder
     address?: SortOrder
     phone?: SortOrder
+    contactEmail?: SortOrder
+    cpf?: SortOrder
+    paymentMethod?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
   }
@@ -16332,6 +16419,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
     items?: OrderItemCreateNestedManyWithoutOrderInput
@@ -16342,6 +16432,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -16550,6 +16643,9 @@ export namespace Prisma {
     customerName?: StringFilter<"Order"> | string
     address?: StringFilter<"Order"> | string
     phone?: StringFilter<"Order"> | string
+    contactEmail?: StringFilter<"Order"> | string
+    cpf?: StringFilter<"Order"> | string
+    paymentMethod?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     createdAt?: DateTimeFilter<"Order"> | Date | string
   }
@@ -17465,6 +17561,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutOrdersInput
@@ -17476,6 +17575,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
   }
@@ -17530,6 +17632,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -17541,6 +17646,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17633,6 +17741,9 @@ export namespace Prisma {
     customerName: string
     address: string
     phone: string
+    contactEmail: string
+    cpf: string
+    paymentMethod: string
     status?: $Enums.OrderStatus
     createdAt?: Date | string
   }
@@ -17794,6 +17905,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUpdateManyWithoutOrderNestedInput
@@ -17804,6 +17918,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -17814,6 +17931,9 @@ export namespace Prisma {
     customerName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    contactEmail?: StringFieldUpdateOperationsInput | string
+    cpf?: StringFieldUpdateOperationsInput | string
+    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

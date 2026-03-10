@@ -1,4 +1,5 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/session";
 import { resolveOwnerUserId } from "@/lib/owner";
 
 function toNumber(value: unknown) {
@@ -13,6 +14,9 @@ type IncomingItem = {
 };
 
 export async function POST(req: Request) {
+  const auth = await requireUser();
+  if ("error" in auth) return auth.error;
+
   const ownerId = await resolveOwnerUserId();
   if (!ownerId) {
     return Response.json({ error: "Nenhum usuario encontrado" }, { status: 404 });
@@ -22,9 +26,12 @@ export async function POST(req: Request) {
   const customerName = String(body?.customerName ?? "").trim();
   const address = String(body?.address ?? "").trim();
   const phone = String(body?.phone ?? "").trim();
+  const contactEmail = String(body?.contactEmail ?? "").trim();
+  const cpf = String(body?.cpf ?? "").trim();
+  const paymentMethod = String(body?.paymentMethod ?? "").trim().toUpperCase();
   const items = Array.isArray(body?.items) ? (body.items as IncomingItem[]) : [];
 
-  if (!customerName || !address || !phone || items.length === 0) {
+  if (!customerName || !address || !phone || !contactEmail || !cpf || !paymentMethod || items.length === 0) {
     return Response.json({ error: "Dados invalidos" }, { status: 400 });
   }
 
@@ -56,6 +63,9 @@ export async function POST(req: Request) {
       customerName,
       address,
       phone,
+      contactEmail,
+      cpf,
+      paymentMethod,
       items: {
         create: orderItems,
       },

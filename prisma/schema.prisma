@@ -118,6 +118,9 @@ model Order {
   customerName String
   address      String
   phone        String
+  contactEmail String
+  cpf          String
+  paymentMethod String
   status       OrderStatus @default(PENDENTE)
   createdAt    DateTime    @default(now())
   items        OrderItem[]

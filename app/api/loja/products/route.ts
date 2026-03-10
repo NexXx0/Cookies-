@@ -7,7 +7,7 @@ export async function GET() {
     return Response.json({ error: "Nenhum usuario encontrado" }, { status: 404 });
   }
 
-  const recipes = await prisma.recipe.findMany({
+  let recipes = await prisma.recipe.findMany({
     where: { userId: ownerId },
     orderBy: { name: "asc" },
     select: {
@@ -20,3 +20,4 @@ export async function GET() {
 
   return Response.json(recipes);
 }
+

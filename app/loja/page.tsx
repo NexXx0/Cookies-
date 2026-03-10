@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -25,12 +25,21 @@ export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartRow[]>([]);
   const [name, setName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("PIX");
+  const [isLogged, setIsLogged] = useState(false);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => setIsLogged(!!data?.user))
+      .catch(() => setIsLogged(false));
+
     setLoading(true);
     fetch("/api/loja/products")
       .then((res) => res.json())
@@ -68,8 +77,13 @@ export default function LojaPage() {
       quantity: row.quantity,
     }));
 
-    if (!name.trim() || !address.trim() || !phone.trim()) {
-      setMessage("Preencha nome, endereco e telefone.");
+    if (!isLogged) {
+      setMessage("Faca login para finalizar o pedido.");
+      return;
+    }
+
+    if (!name.trim() || !address.trim() || !phone.trim() || !contactEmail.trim() || !cpf.trim()) {
+      setMessage("Preencha todos os dados obrigatorios.");
       return;
     }
 
@@ -85,6 +99,9 @@ export default function LojaPage() {
         customerName: name,
         address,
         phone,
+        contactEmail,
+        cpf,
+        paymentMethod,
         items,
       }),
     });
@@ -100,6 +117,9 @@ export default function LojaPage() {
     setName("");
     setAddress("");
     setPhone("");
+    setContactEmail("");
+    setCpf("");
+    setPaymentMethod("PIX");
   };
 
   return (
@@ -153,9 +173,22 @@ export default function LojaPage() {
         <section className="store-checkout">
           <h2>Finalizar pedido</h2>
           <form onSubmit={onSubmit} className="store-form">
-            <input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required />
-            <input placeholder="Endereco" value={address} onChange={(e) => setAddress(e.target.value)} required />
-            <input placeholder="Telefone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            {!isLogged ? (
+              <div className="store-message">
+                Para comprar, faca login ou crie uma conta.
+                <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                  <a className="store-link" href="/login">Entrar</a>
+                </div>
+              </div>
+            ) : null}
+            <input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required disabled={!isLogged} />
+            <input placeholder="Email para contato" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required disabled={!isLogged} />
+            <input placeholder="CPF" value={cpf} onChange={(e) => setCpf(e.target.value)} required disabled={!isLogged} />
+            <input placeholder="Endereco" value={address} onChange={(e) => setAddress(e.target.value)} required disabled={!isLogged} />
+            <input placeholder="Telefone" value={phone} onChange={(e) => setPhone(e.target.value)} required disabled={!isLogged} />
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} disabled={!isLogged}>
+              <option value="PIX">PIX</option>
+            </select>
 
             <div className="store-summary">
               <span>Total</span>
@@ -164,7 +197,7 @@ export default function LojaPage() {
 
             {message ? <div className="store-message">{message}</div> : null}
 
-            <button type="submit">Finalizar pedido</button>
+            <button type="submit" disabled={!isLogged}>Finalizar pedido</button>
           </form>
         </section>
       </main>

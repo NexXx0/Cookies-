@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
@@ -23,6 +23,9 @@ type Order = {
   customerName: string;
   address: string;
   phone: string;
+  contactEmail: string;
+  cpf: string;
+  paymentMethod: string;
   status: string;
   createdAt: string;
   items: OrderItem[];
@@ -54,7 +57,7 @@ export default function PedidosPage() {
 
   const updateStatus = async (orderId: string, status: string) => {
     setMessage("");
-    const res = await fetch(`/api/pedidos/${orderId}` , {
+    const res = await fetch(`/api/pedidos/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -94,6 +97,9 @@ export default function PedidosPage() {
                     <h2 style={{ margin: 0 }}>{order.customerName}</h2>
                     <p className="muted" style={{ margin: "6px 0 0" }}>{order.address}</p>
                     <p className="muted" style={{ margin: "4px 0 0" }}>Telefone: {order.phone}</p>
+                    <p className="muted" style={{ margin: "4px 0 0" }}>Email: {order.contactEmail}</p>
+                    <p className="muted" style={{ margin: "4px 0 0" }}>CPF: {order.cpf}</p>
+                    <p className="muted" style={{ margin: "4px 0 0" }}>Pagamento: {order.paymentMethod}</p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div className="muted" style={{ fontSize: 12 }}>Total</div>
