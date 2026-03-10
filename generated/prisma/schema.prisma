@@ -19,6 +19,7 @@ model User {
   sessions        Session[]
   emailCodes      EmailVerificationCode[]
   resetCodes      PasswordResetCode[]
+  orders          Order[]
 }
 
 model Ingredient {
@@ -42,6 +43,7 @@ model Recipe {
   image         String?
   ingredients   RecipeIngredient[]
   sales         Sale[]
+  orderItems    OrderItem[]
   user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -101,4 +103,36 @@ model PasswordResetCode {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
+}
+
+enum OrderStatus {
+  PENDENTE
+  PREPARANDO
+  SAIU_PARA_ENTREGA
+  CONCLUIDO
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  userId       String
+  customerName String
+  address      String
+  phone        String
+  status       OrderStatus @default(PENDENTE)
+  createdAt    DateTime    @default(now())
+  items        OrderItem[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  recipeId   String
+  recipeName String
+  unitPrice  Float
+  quantity   Int
+
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }

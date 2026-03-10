@@ -189,6 +189,25 @@ exports.Prisma.PasswordResetCodeScalarFieldEnum = {
   usedAt: 'usedAt'
 };
 
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  customerName: 'customerName',
+  address: 'address',
+  phone: 'phone',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  recipeId: 'recipeId',
+  recipeName: 'recipeName',
+  unitPrice: 'unitPrice',
+  quantity: 'quantity'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -203,7 +222,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDENTE: 'PENDENTE',
+  PREPARANDO: 'PREPARANDO',
+  SAIU_PARA_ENTREGA: 'SAIU_PARA_ENTREGA',
+  CONCLUIDO: 'CONCLUIDO'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -213,7 +237,9 @@ exports.Prisma.ModelName = {
   Sale: 'Sale',
   Session: 'Session',
   EmailVerificationCode: 'EmailVerificationCode',
-  PasswordResetCode: 'PasswordResetCode'
+  PasswordResetCode: 'PasswordResetCode',
+  Order: 'Order',
+  OrderItem: 'OrderItem'
 };
 
 /**

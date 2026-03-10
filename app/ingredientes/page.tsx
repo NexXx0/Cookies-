@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 
-type Unit = "g" | "kg";
+type Unit = "g" | "kg" | "ml" | "l";
 
 type Ingredient = {
   id: string;
@@ -132,16 +132,18 @@ export default function IngredientesPage() {
     <AppShell>
       <section className="panel section">
         <h1 className="page-title" style={{ fontSize: 36 }}>Ingredientes</h1>
-        <p className="page-subtitle">Cadastre, edite e delete ingredientes com preco e peso.</p>
+        <p className="page-subtitle">Cadastre, edite e delete ingredientes com preco e quantidade.</p>
 
         <form onSubmit={onCreate} className="grid cards-3" style={{ marginTop: 16 }}>
           <input className="input" placeholder="Nome do ingrediente" value={name} onChange={(e) => setName(e.target.value)} required />
           <input className="input" type="text" inputMode="decimal" placeholder="Preco (ex: 12,50)" value={price} onChange={(e) => setPrice(e.target.value)} required />
           <div style={{ display: "flex", gap: 8 }}>
-            <input className="input" type="text" inputMode="decimal" placeholder="Peso (ex: 1 ou 0,5)" value={quantity} onChange={(e) => setQuantity(e.target.value)} required style={{ flex: 1 }} />
+            <input className="input" type="text" inputMode="decimal" placeholder="Quantidade (ex: 1 ou 0,5)" value={quantity} onChange={(e) => setQuantity(e.target.value)} required style={{ flex: 1 }} />
             <select className="input" value={unit} onChange={(e) => setUnit(e.target.value as Unit)}>
               <option value="g">g</option>
               <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="l">L</option>
             </select>
           </div>
           <button className="btn btn-primary" type="submit" style={{ gridColumn: "1 / -1" }}>Adicionar ingrediente</button>
@@ -158,7 +160,7 @@ export default function IngredientesPage() {
                 <tr>
                   <th>Nome</th>
                   <th>Preco</th>
-                  <th>Peso</th>
+                  <th>Quantidade</th>
                   <th>Unidade</th>
                   <th>Acoes</th>
                 </tr>
@@ -181,6 +183,8 @@ export default function IngredientesPage() {
                         <select className="input" value={row?.unit ?? "g"} onChange={(e) => updateEdit(ing.id, { unit: e.target.value as Unit })}>
                           <option value="g">g</option>
                           <option value="kg">kg</option>
+                          <option value="ml">ml</option>
+                          <option value="l">L</option>
                         </select>
                       </td>
                       <td style={{ display: "flex", gap: 8 }}>
@@ -198,3 +202,5 @@ export default function IngredientesPage() {
     </AppShell>
   );
 }
+
+

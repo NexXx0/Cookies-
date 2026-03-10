@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { pushAppNotifications } from "@/lib/clientNotifications";
 
-type Unit = "g" | "kg";
+type Unit = "g" | "kg" | "ml" | "l";
 type RecipeInputMode = "manual" | "ready";
 
 type Ingredient = {
@@ -34,6 +34,7 @@ type ParsedReadyLine = {
   sourceLine: string;
   name: string;
   grams: number;
+  baseUnit: "g" | "ml";
   ingredientId?: string;
 };
 
@@ -45,7 +46,7 @@ function formatMoney(value: number) {
 }
 
 function ingredientCostPerGram(ingredient: Ingredient) {
-  const gramsInPack = ingredient.unit === "kg" ? ingredient.quantity * 1000 : ingredient.quantity;
+  const gramsInPack = ingredient.unit === "kg" || ingredient.unit === "l" ? ingredient.quantity * 1000 : ingredient.quantity;
   return gramsInPack > 0 ? ingredient.price / gramsInPack : 0;
 }
 
@@ -65,6 +66,7 @@ function parseAmountToGrams(amountRaw: string, unitRaw: string) {
 
   const unit = unitRaw.toLowerCase();
   if (unit === "kg") return amount * 1000;
+  if (unit === "l") return amount * 1000;
   if (unit === "g" || unit === "ml") return amount;
   return NaN;
 }
@@ -97,6 +99,17 @@ function isLikelyIngredientName(name: string) {
   return !stopwords.has(normalized);
 }
 
+function isLikelyLiquidIngredient(name: string) {
+  const n = normalizeText(name);
+  if (!n) return false;
+  const liquidKeywords = ["agua", "leite", "oleo", "ovo", "ovos", "iogurte", "suco", "sucos"];
+  return liquidKeywords.some((keyword) => n.includes(keyword));
+}
+
+function displayBaseUnitForIngredient(ingredient?: Ingredient) {
+  if (!ingredient) return "g";
+  return ingredient.unit === "l" || ingredient.unit === "ml" ? "ml" : "g";
+}
 function tryMatchIngredientId(parsedName: string, ingredientes: Ingredient[]) {
   const n = normalizeText(parsedName);
   if (!n) return undefined;
@@ -120,10 +133,12 @@ function parseReadyText(text: string, ingredientes: Ingredient[]): ParsedReadyLi
     const line = raw.trim();
     if (!line) continue;
 
-    const amountMatch = line.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|ml)\b/i);
+    const amountMatch = line.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|ml|l)\b/i);
     if (!amountMatch || amountMatch.index === undefined) continue;
 
     const grams = parseAmountToGrams(amountMatch[1], amountMatch[2]);
+    const rawUnit = amountMatch[2].toLowerCase();
+    const baseUnit = rawUnit === "ml" || rawUnit === "l" ? "ml" : "g";
     if (!Number.isFinite(grams) || grams <= 0) continue;
 
     const name = extractIngredientName(line, amountMatch as RegExpMatchArray & { index: number });
@@ -133,6 +148,7 @@ function parseReadyText(text: string, ingredientes: Ingredient[]): ParsedReadyLi
       sourceLine: line,
       name,
       grams,
+      baseUnit,
       ingredientId: tryMatchIngredientId(name, ingredientes),
     });
   }
@@ -235,7 +251,7 @@ export default function ReceitasPage() {
           name: unresolved.name,
           price: 0,
           quantity: 1,
-          unit: "kg",
+          unit: isLikelyLiquidIngredient(unresolved.name) ? "l" : "kg",
         }),
       });
 
@@ -400,7 +416,7 @@ export default function ReceitasPage() {
                 <div style={{ marginTop: 10, display: "grid", gap: 6 }}>
                   {parsedReadyLines.map((line, idx) => (
                     <div key={`${line.sourceLine}-${idx}`}>
-                      {line.name}: {line.grams.toFixed(1)} g {line.ingredientId ? "" : "(nao encontrado)"}
+                      {line.name}: {line.grams.toFixed(1)} {line.baseUnit} {line.ingredientId ? "" : "(nao encontrado)"}
                     </div>
                   ))}
                 </div>
@@ -416,7 +432,7 @@ export default function ReceitasPage() {
                   const ing = ingredientes.find((x) => x.id === item.ingredientId);
                   return (
                     <div key={item.ingredientId} className="list-row">
-                      <span>{ing?.name ?? "Ingrediente"} - {item.grams.toFixed(1)} g</span>
+                      <span>{ing?.name ?? "Ingrediente"} - {item.grams.toFixed(1)} {displayBaseUnitForIngredient(ing)}</span>
                       <button type="button" className="btn" onClick={() => removeItem(item.ingredientId)}>Remover</button>
                     </div>
                   );
@@ -448,7 +464,7 @@ export default function ReceitasPage() {
               {items.map((item) => {
                 const ing = ingredientes.find((x) => x.id === item.ingredientId);
                 const needed = (item.grams * parsedTargetUnits) / parsedYield;
-                return <div key={item.ingredientId}>{ing?.name}: {needed.toFixed(1)} g</div>;
+                return <div key={item.ingredientId}>{ing?.name}: {needed.toFixed(1)} {displayBaseUnitForIngredient(ing)}</div>;
               })}
               <div><strong>Custo estimado para {parsedTargetUnits} unid.: {formatMoney(costPerUnit * parsedTargetUnits)}</strong></div>
             </div>
@@ -500,7 +516,7 @@ export default function ReceitasPage() {
                   <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
                     {receita.ingredients.map((item) => (
                       <div key={item.id}>
-                        {item.ingredient.name}: {item.grams.toFixed(1)} g (para {receita.yieldQuantity} unid.)
+                        {item.ingredient.name}: {item.grams.toFixed(1)} {displayBaseUnitForIngredient(item.ingredient)} (para {receita.yieldQuantity} unid.)
                       </div>
                     ))}
                   </div>
@@ -531,7 +547,7 @@ export default function ReceitasPage() {
                       const needed = (item.grams * targetForRecipe) / Math.max(1, receita.yieldQuantity || 1);
                       return (
                         <div key={item.id}>
-                          {item.ingredient.name}: {needed.toFixed(1)} g
+                          {item.ingredient.name}: {needed.toFixed(1)} {displayBaseUnitForIngredient(item.ingredient)}
                         </div>
                       );
                     })}
@@ -548,6 +564,19 @@ export default function ReceitasPage() {
     </AppShell>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

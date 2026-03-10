@@ -5,7 +5,7 @@ type StockCheck = {
   ok: boolean;
   ingredientName?: string;
   missingAmount?: number;
-  unit?: "g" | "kg";
+  unit?: "g" | "kg" | "ml" | "l";
 };
 
 export async function validarEstoque(recipeId: string, quantidadeVendida: number, userId: string): Promise<StockCheck> {
@@ -76,3 +76,4 @@ export async function baixarEstoque(recipeId: string, quantidadeVendida: number,
     });
   }
 }
+

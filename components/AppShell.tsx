@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/ingredientes", label: "Ingredientes" },
   { href: "/receitas", label: "Receitas" },
   { href: "/vendas", label: "Vendas" },
+  { href: "/pedidos", label: "Pedidos" },
 ];
 
 type MeResponse = {
@@ -158,3 +159,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+
+
+
