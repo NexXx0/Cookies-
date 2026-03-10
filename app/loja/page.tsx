@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -14,6 +14,14 @@ type CartRow = {
   quantity: number;
 };
 
+type CustomerForm = {
+  name: string;
+  contactEmail: string;
+  cpf: string;
+  address: string;
+  phone: string;
+};
+
 function formatMoney(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -24,14 +32,18 @@ function formatMoney(value: number) {
 export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartRow[]>([]);
-  const [name, setName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [cpf, setCpf] = useState("");
+  const [form, setForm] = useState<CustomerForm>({
+    name: "",
+    contactEmail: "",
+    cpf: "",
+    address: "",
+    phone: "",
+  });
   const [paymentMethod, setPaymentMethod] = useState("PIX");
+  const [stage, setStage] = useState<"browse" | "cart" | "checkout">("browse");
   const [isLogged, setIsLogged] = useState(false);
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,17 +66,21 @@ export default function LojaPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const cartItems = cart.filter((row) => row.quantity > 0);
+
   const total = useMemo(() => {
-    return cart.reduce((sum, row) => {
+    return cartItems.reduce((sum, row) => {
       const product = products.find((p) => p.id === row.productId);
-      if (!product || row.quantity <= 0) return sum;
+      if (!product) return sum;
       return sum + product.priceSell * row.quantity;
     }, 0);
-  }, [cart, products]);
+  }, [cartItems, products]);
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const addProduct = (productId: string, delta: number) => {
     setCart((prev) =>
-      prev.map((row) => (row.productId === productId ? { ...row, quantity: Math.max(0, quantity) } : row)),
+      prev.map((row) =>
+        row.productId === productId ? { ...row, quantity: Math.max(0, row.quantity + delta) } : row,
+      ),
     );
   };
 
@@ -72,35 +88,35 @@ export default function LojaPage() {
     event.preventDefault();
     setMessage("");
 
-    const items = cart.filter((row) => row.quantity > 0).map((row) => ({
+    if (!isLogged) {
+      setMessage("Faça login para continuar.");
+      return;
+    }
+
+    if (!form.name || !form.address || !form.phone || !form.contactEmail || !form.cpf) {
+      setMessage("Complete todos os campos do formulário.");
+      return;
+    }
+
+    if (!cartItems.length) {
+      setMessage("Adicione ao menos um cookie ao carrinho.");
+      return;
+    }
+
+    const items = cartItems.map((row) => ({
       recipeId: row.productId,
       quantity: row.quantity,
     }));
-
-    if (!isLogged) {
-      setMessage("Faca login para finalizar o pedido.");
-      return;
-    }
-
-    if (!name.trim() || !address.trim() || !phone.trim() || !contactEmail.trim() || !cpf.trim()) {
-      setMessage("Preencha todos os dados obrigatorios.");
-      return;
-    }
-
-    if (items.length === 0) {
-      setMessage("Selecione pelo menos um produto.");
-      return;
-    }
 
     const res = await fetch("/api/loja/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        customerName: name,
-        address,
-        phone,
-        contactEmail,
-        cpf,
+        customerName: form.name,
+        address: form.address,
+        phone: form.phone,
+        contactEmail: form.contactEmail,
+        cpf: form.cpf,
         paymentMethod,
         items,
       }),
@@ -108,18 +124,33 @@ export default function LojaPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setMessage(data?.error || "Nao foi possivel finalizar o pedido.");
+      setMessage(data?.error || "Não foi possível finalizar o pedido.");
       return;
     }
 
-    setMessage("Pedido enviado com sucesso. Em breve entraremos em contato.");
+    setMessage("Pedido finalizado com sucesso!");
     setCart((prev) => prev.map((row) => ({ ...row, quantity: 0 })));
-    setName("");
-    setAddress("");
-    setPhone("");
-    setContactEmail("");
-    setCpf("");
+    setForm({ name: "", contactEmail: "", cpf: "", address: "", phone: "" });
     setPaymentMethod("PIX");
+    setStage("browse");
+  };
+
+  const proceedToCart = () => {
+    if (!cartItems.length) {
+      setCartMessage("Adicione algum produto antes de continuar.");
+      return;
+    }
+    setCartMessage("");
+    setStage("cart");
+  };
+
+  const proceedToCheckout = () => {
+    if (!isLogged) {
+      setCartMessage("Faça login para continuar.");
+      setStage("cart");
+      return;
+    }
+    setStage("checkout");
   };
 
   return (
@@ -128,17 +159,15 @@ export default function LojaPage() {
         <div className="store-hero-content">
           <span className="store-badge">DuetoCookies</span>
           <h1>Cookies artesanais para deixar o dia mais doce</h1>
-          <p>Escolha seus sabores favoritos e envie seu pedido em segundos.</p>
+          <p>Escolha seu sabor, adicione ao carrinho e finalize em poucos passos.</p>
         </div>
       </header>
 
       <main className="store-shell">
         <section className="store-products">
-          <h2>Cardapio</h2>
+          <h2>Cardápio</h2>
           {loading ? (
-            <p className="store-muted">Carregando produtos...</p>
-          ) : products.length === 0 ? (
-            <p className="store-muted">Nenhum produto disponivel no momento.</p>
+            <p className="store-muted">Buscando cookies...</p>
           ) : (
             <div className="store-grid">
               {products.map((product) => {
@@ -149,19 +178,30 @@ export default function LojaPage() {
                       <h3>{product.name}</h3>
                       <p className="store-price">{formatMoney(product.priceSell)}</p>
                       <div className="store-qty">
-                        <button type="button" onClick={() => updateQuantity(product.id, Math.max(0, (row?.quantity ?? 0) - 1))}>
+                        <button type="button" onClick={() => addProduct(product.id, -1)}>
                           -
                         </button>
                         <input
                           type="number"
                           min={0}
                           value={row?.quantity ?? 0}
-                          onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
+                          onChange={(e) => addProduct(product.id, Number(e.target.value) - (row?.quantity ?? 0))}
                         />
-                        <button type="button" onClick={() => updateQuantity(product.id, (row?.quantity ?? 0) + 1)}>
+                        <button type="button" onClick={() => addProduct(product.id, 1)}>
                           +
                         </button>
                       </div>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        style={{ marginTop: 14 }}
+                        onClick={() => {
+                          if ((row?.quantity ?? 0) <= 0) addProduct(product.id, 1);
+                          setCartMessage("Cookie adicionado ao carrinho.");
+                        }}
+                      >
+                        Adicionar ao carrinho
+                      </button>
                     </div>
                   </article>
                 );
@@ -170,37 +210,111 @@ export default function LojaPage() {
           )}
         </section>
 
-        <section className="store-checkout">
-          <h2>Finalizar pedido</h2>
-          <form onSubmit={onSubmit} className="store-form">
-            {!isLogged ? (
-              <div className="store-message">
-                Para comprar, faca login ou crie uma conta.
-                <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
-                  <a className="store-link" href="/login">Entrar</a>
-                </div>
+        <aside className="store-cart">
+          <h2>Carrinho</h2>
+          {cartItems.length === 0 ? (
+            <p className="store-muted">Nada no carrinho ainda.</p>
+          ) : (
+            <div style={{ display: "grid", gap: 8 }}>
+              {cartItems.map((row) => {
+                const product = products.find((p) => p.id === row.productId);
+                if (!product) return null;
+                return (
+                  <div key={row.productId} className="list-row">
+                    <div>
+                      <strong>{product.name}</strong>
+                      <div className="muted">{row.quantity} x {formatMoney(product.priceSell)}</div>
+                    </div>
+                    <span>{formatMoney(product.priceSell * row.quantity)}</span>
+                  </div>
+                );
+              })}
+              <div className="store-summary">
+                <span>Total</span>
+                <strong>{formatMoney(total)}</strong>
               </div>
-            ) : null}
-            <input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required disabled={!isLogged} />
-            <input placeholder="Email para contato" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required disabled={!isLogged} />
-            <input placeholder="CPF" value={cpf} onChange={(e) => setCpf(e.target.value)} required disabled={!isLogged} />
-            <input placeholder="Endereco" value={address} onChange={(e) => setAddress(e.target.value)} required disabled={!isLogged} />
-            <input placeholder="Telefone" value={phone} onChange={(e) => setPhone(e.target.value)} required disabled={!isLogged} />
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} disabled={!isLogged}>
-              <option value="PIX">PIX</option>
-            </select>
-
-            <div className="store-summary">
-              <span>Total</span>
-              <strong>{formatMoney(total)}</strong>
             </div>
+          )}
+          <button type="button" className="btn btn-primary" onClick={proceedToCart}>
+            Ver carrinho
+          </button>
+          {cartMessage ? <p className="store-message">{cartMessage}</p> : null}
+          {stage === "cart" && (
+            <button type="button" className="btn" style={{ marginTop: 12 }} onClick={proceedToCheckout}>
+              Continuar para o pagamento
+            </button>
+          )}
+        </aside>
 
-            {message ? <div className="store-message">{message}</div> : null}
+        {stage === "cart" && (
+          <section className="store-checkout">
+            <h2>Resumo do pedido</h2>
+            <p className="muted">Confirme os itens e clique em continuar para o pagamento.</p>
+            <div style={{ display: "grid", gap: 8 }}>
+              {cartItems.map((row) => {
+                const product = products.find((p) => p.id === row.productId);
+                if (!product) return null;
+                return (
+                  <div key={row.productId} className="list-row">
+                    <span>{product.name}</span>
+                    <span>{row.quantity} x {formatMoney(product.priceSell)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
-            <button type="submit" disabled={!isLogged}>Finalizar pedido</button>
-          </form>
-        </section>
+        {stage === "checkout" && (
+          <section className="store-checkout">
+            <h2>Dados do pedido</h2>
+            <form onSubmit={onSubmit} className="store-form">
+              <input
+                placeholder="Nome completo"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+              <input
+                placeholder="Email para contato"
+                value={form.contactEmail}
+                onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
+                required
+              />
+              <input
+                placeholder="CPF"
+                value={form.cpf}
+                onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                required
+              />
+              <input
+                placeholder="Endereço"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                required
+              />
+              <input
+                placeholder="Telefone"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                required
+              />
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                <option value="PIX">PIX</option>
+              </select>
+              <div className="store-summary">
+                <span>Total</span>
+                <strong>{formatMoney(total)}</strong>
+              </div>
+              {message ? <div className="store-message">{message}</div> : null}
+              <button type="submit" className="btn btn-primary">
+                Finalizar pedido
+              </button>
+            </form>
+          </section>
+        )}
       </main>
     </div>
   );
 }
+
