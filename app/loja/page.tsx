@@ -39,12 +39,12 @@ function formatMoney(value: number) {
 }
 
 const fallbackProducts: Product[] = [
-  { id: "cookie-01", name: "Cookie Choco Chunk", priceSell: 12.9, image: "https://images.unsplash.com/photo-1509460913899-515f1df34fea?auto=format&fit=crop&w=800&q=80" },
-  { id: "cookie-02", name: "Doce de Leite com Flor de Sal", priceSell: 13.5, image: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&w=800&q=80" },
-  { id: "cookie-03", name: "Red Velvet Cream", priceSell: 14.0, image: "https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=800&q=80" },
-  { id: "cookie-04", name: "Pistache Framboesa", priceSell: 14.9, image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=800&q=80" },
-  { id: "cookie-05", name: "Nutella Lava", priceSell: 15.5, image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" },
-  { id: "cookie-06", name: "Zero Açúcar 70%", priceSell: 13.9, image: "https://images.unsplash.com/photo-1603052875333-0211c93b5395?auto=format&fit=crop&w=800&q=80" },
+  { id: "cookie-01", name: "Cookie Choco Chunk", priceSell: 12.9, image: "https://images.unsplash.com/photo-1509460913899-515f1df34fea?auto=format&fit=crop&w=900&q=80" },
+  { id: "cookie-02", name: "Doce de Leite com Flor de Sal", priceSell: 13.5, image: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&w=900&q=80" },
+  { id: "cookie-03", name: "Red Velvet Cream", priceSell: 14.0, image: "https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=900&q=80" },
+  { id: "cookie-04", name: "Pistache Framboesa", priceSell: 14.9, image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=80" },
+  { id: "cookie-05", name: "Nutella Lava", priceSell: 15.5, image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80" },
+  { id: "cookie-06", name: "Zero Açúcar 70%", priceSell: 13.9, image: "https://images.unsplash.com/photo-1603052875333-0211c93b5395?auto=format&fit=crop&w=900&q=80" },
 ];
 
 export default function LojaPage() {
@@ -203,22 +203,19 @@ export default function LojaPage() {
     setStage("browse");
   };
 
-  const proceedToCart = () => {
-    if (!cartItems.length) {
-      setCartMessage("Adicione algum produto antes de continuar.");
-      return;
-    }
-    setCartMessage("");
+  const goCart = () => {
     setStage("cart");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const proceedToCheckout = () => {
+  const goCheckout = () => {
     if (!isLogged) {
       setCartMessage("Faça login para continuar.");
       setStage("cart");
       return;
     }
     setStage("checkout");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const scrollToMenu = () => {
@@ -229,8 +226,22 @@ export default function LojaPage() {
   const handleAddAndGoCart = (productId: string, currentQty: number) => {
     if (currentQty <= 0) addProduct(productId, 1);
     setCartMessage("Cookie adicionado ao carrinho.");
-    setStage("cart");
+    goCart();
   };
+
+  const Stepper = () => (
+    <div className="stepper">
+      <div className={`step ${stage === "cart" ? "is-active" : ""} ${stage === "browse" ? "is-active" : ""}`}>
+        <span>1</span> Carrinho
+      </div>
+      <div className={`step ${stage === "checkout" ? "is-active" : ""}`}>
+        <span>2</span> Identificação
+      </div>
+      <div className={`step ${stage === "checkout" ? "is-active" : ""}`}>
+        <span>3</span> Pagamento
+      </div>
+    </div>
+  );
 
   return (
     <div className="store-page">
@@ -242,22 +253,19 @@ export default function LojaPage() {
         <nav className="store-nav">
           <button type="button" onClick={scrollToMenu}>Catálogo</button>
           <a href="#cardapio">Sabores</a>
+          <button type="button" onClick={goCart}>Carrinho</button>
         </nav>
         <div className="store-actions">
           <button className="store-icon-btn" aria-label="Buscar">🔍</button>
           <Link href="/minha-conta" className="store-icon-btn" aria-label="Favoritos">♡</Link>
-          <button className="store-icon-btn" aria-label="Carrinho" onClick={proceedToCart}>🛍️</button>
-          <div
-            className="store-user"
-            onMouseEnter={() => setOpenUserMenu(true)}
-            onMouseLeave={() => setOpenUserMenu(false)}
-          >
+          <button className="store-icon-btn" aria-label="Carrinho" onClick={goCart}>🛍️</button>
+          <div className="store-user" onClick={() => setOpenUserMenu((v) => !v)}>
             {isLogged ? (
               <>
                 <span className="store-user-name">Olá, {userName || "cliente"}</span>
                 <span className="store-user-icon">👤</span>
                 {openUserMenu ? (
-                  <div className="store-user-menu" onMouseEnter={() => setOpenUserMenu(true)} onMouseLeave={() => setOpenUserMenu(false)}>
+                  <div className="store-user-menu">
                     <Link href="/minha-conta">Minha conta</Link>
                     <Link href="/minha-conta#pedidos">Meus pedidos</Link>
                     <Link href="/minha-conta#favoritos">Meus favoritos</Link>
@@ -281,14 +289,14 @@ export default function LojaPage() {
         </div>
       </div>
 
-      {/* Catálogo primeiro */}
+      {/* Catálogo */}
       <main id="cardapio" className="store-shell" style={{ paddingTop: 10 }}>
         <section className="store-products">
           <div className="store-products-header">
             <div>
               <p className="store-kicker">Catálogo</p>
               <h2>Cookies artesanais prontos para pedir</h2>
-              <p className="store-muted">Adicione e já visualize o carrinho ao lado.</p>
+              <p className="store-muted">Adicione e vá ao carrinho quando quiser.</p>
             </div>
           </div>
           {loading ? (
@@ -344,103 +352,132 @@ export default function LojaPage() {
             </div>
           )}
         </section>
+      </main>
 
-        <aside className="store-cart">
-          <div className="store-cart-header">
-            <div>
-              <p className="store-kicker">Carrinho</p>
-              <h2>Resumo</h2>
-            </div>
-            <span className="store-pill dark">{cartItems.length} itens</span>
-          </div>
-
+      {stage === "cart" && (
+        <section className="cart-page">
+          <Stepper />
           {cartItems.length === 0 ? (
-            <p className="store-muted">Nada no carrinho ainda.</p>
+            <div className="cart-empty">
+              <h2>Seu carrinho está vazio</h2>
+              <p>Navegue pelos sabores e volte para adicionar cookies.</p>
+              <button className="store-ghost" onClick={scrollToMenu}>Voltar para o catálogo</button>
+            </div>
           ) : (
-            <div className="store-cart-list">
+            <div className="cart-grid">
+              <div className="cart-items">
+                {cartItems.map((row) => {
+                  const product = products.find((p) => p.id === row.productId);
+                  if (!product) return null;
+                  return (
+                    <div key={row.productId} className="cart-line">
+                      <div className="cart-line-info">
+                        <div className="cart-thumb" style={{ backgroundImage: `url(${product.image || fallbackProducts[0].image})` }} />
+                        <div>
+                          <strong>{product.name}</strong>
+                          <div className="muted">{formatMoney(product.priceSell)}</div>
+                        </div>
+                      </div>
+                      <div className="cart-qty">
+                        <button onClick={() => addProduct(product.id, -1)}>-</button>
+                        <span>{row.quantity}</span>
+                        <button onClick={() => addProduct(product.id, 1)}>+</button>
+                      </div>
+                      <div className="cart-price">{formatMoney(product.priceSell * row.quantity)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <aside className="cart-summary-panel">
+                <h3>Resumo</h3>
+                <div className="store-summary">
+                  <span>Total</span>
+                  <strong>{formatMoney(total)}</strong>
+                </div>
+                {cartMessage ? <p className="store-message">{cartMessage}</p> : null}
+                <button className="store-cta block" onClick={goCheckout} disabled={cartItems.length === 0}>
+                  Continuar para pagamento
+                </button>
+              </aside>
+            </div>
+          )}
+        </section>
+      )}
+
+      {stage === "checkout" && (
+        <section className="cart-page">
+          <Stepper />
+          <div className="checkout-grid">
+            <div className="checkout-products">
+              <h3>Produtos</h3>
               {cartItems.map((row) => {
                 const product = products.find((p) => p.id === row.productId);
                 if (!product) return null;
                 return (
-                  <div key={row.productId} className="list-row">
-                    <div>
-                      <strong>{product.name}</strong>
-                      <div className="muted">
-                        {row.quantity} x {formatMoney(product.priceSell)}
+                  <div key={row.productId} className="cart-line">
+                    <div className="cart-line-info">
+                      <div className="cart-thumb" style={{ backgroundImage: `url(${product.image || fallbackProducts[0].image})` }} />
+                      <div>
+                        <strong>{product.name}</strong>
+                        <div className="muted">{row.quantity} x {formatMoney(product.priceSell)}</div>
                       </div>
                     </div>
-                    <span>{formatMoney(product.priceSell * row.quantity)}</span>
+                    <div className="cart-price">{formatMoney(product.priceSell * row.quantity)}</div>
                   </div>
                 );
               })}
-              <div className="store-summary">
-                <span>Total</span>
-                <strong>{formatMoney(total)}</strong>
-              </div>
             </div>
-          )}
-          <button type="button" className="store-cta block" onClick={proceedToCart}>
-            Ver carrinho
-          </button>
-          {cartItems.length > 0 && (
-            <button type="button" className="store-ghost full" onClick={proceedToCheckout}>
-              Continuar para pagamento
-            </button>
-          )}
-          {cartMessage ? <p className="store-message">{cartMessage}</p> : null}
-        </aside>
-      </main>
-
-      {stage === "checkout" && (
-        <section className="store-checkout" style={{ maxWidth: 900, margin: "0 auto 40px", padding: 22 }}>
-          <h2>Dados do pedido</h2>
-          <form onSubmit={onSubmit} className="store-form">
-            <div className="store-form-grid">
-              <input
-                placeholder="Nome completo"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-              <input
-                placeholder="Email para contato"
-                value={form.contactEmail}
-                onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-                required
-              />
+            <div className="checkout-form-panel">
+              <h3>Identificação</h3>
+              <form onSubmit={onSubmit} className="store-form">
+                <div className="store-form-grid">
+                  <input
+                    placeholder="Nome completo"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    required
+                  />
+                  <input
+                    placeholder="Email para contato"
+                    value={form.contactEmail}
+                    onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="store-form-grid">
+                  <input
+                    placeholder="CPF"
+                    value={form.cpf}
+                    onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                    required
+                  />
+                  <input
+                    placeholder="Telefone"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    required
+                  />
+                </div>
+                <input
+                  placeholder="Endereço completo"
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  required
+                />
+                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                  <option value="PIX">PIX</option>
+                </select>
+                <div className="store-summary">
+                  <span>Total</span>
+                  <strong>{formatMoney(total)}</strong>
+                </div>
+                {message ? <div className="store-message">{message}</div> : null}
+                <button type="submit" className="store-cta block">
+                  Finalizar pedido
+                </button>
+              </form>
             </div>
-            <div className="store-form-grid">
-              <input
-                placeholder="CPF"
-                value={form.cpf}
-                onChange={(e) => setForm({ ...form, cpf: e.target.value })}
-                required
-              />
-              <input
-                placeholder="Telefone"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                required
-              />
-            </div>
-            <input
-              placeholder="Endereço completo"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              required
-            />
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-              <option value="PIX">PIX</option>
-            </select>
-            <div className="store-summary">
-              <span>Total</span>
-              <strong>{formatMoney(total)}</strong>
-            </div>
-            {message ? <div className="store-message">{message}</div> : null}
-            <button type="submit" className="store-cta block">
-              Finalizar pedido
-            </button>
-          </form>
+          </div>
         </section>
       )}
     </div>
