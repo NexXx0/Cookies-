@@ -47,6 +47,52 @@ const fallbackProducts: Product[] = [
   { id: "cookie-06", name: "Zero Açúcar 70%", priceSell: 13.9, image: "https://images.unsplash.com/photo-1603052875333-0211c93b5395?auto=format&fit=crop&w=900&q=80" },
 ];
 
+const ICON_SIZE = 24;
+
+const SearchIcon = () => (
+  <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="#202020" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="7" />
+    <line x1="16.65" y1="16.65" x2="21" y2="21" />
+  </svg>
+);
+
+const HeartIcon = ({ filled }: { filled?: boolean }) => (
+  <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill={filled ? "#ff7f50" : "none"} stroke="#202020" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+  </svg>
+);
+
+const BagIcon = ({ count }: { count: number }) => (
+  <div className="bag-icon-wrap">
+    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="#202020" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 7h12l-1 13H7L6 7Z" />
+      <path d="M9 7a3 3 0 0 1 6 0" />
+    </svg>
+    {count > 0 ? <span className="bag-badge">{count}</span> : null}
+  </div>
+);
+
+function formatCpfMask(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  const parts = [] as string[];
+  if (digits.length > 0) parts.push(digits.slice(0, 3));
+  if (digits.length > 3) parts.push(digits.slice(3, 6));
+  if (digits.length > 6) parts.push(digits.slice(6, 9));
+  const last = digits.slice(9, 11);
+  return [parts.filter(Boolean).join("."), last ? `-${last}` : ""].join("" ).replace(/^\./, "");
+}
+
+function formatPhoneMask(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
+  return `${digits.slice(0, 2)} ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function LojaPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartRow[]>([]);
@@ -108,22 +154,15 @@ export default function LojaPage() {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("cookie:favorites", JSON.stringify(favorites));
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem("cookie:favorites", JSON.stringify(favorites)); } catch {}
   }, [favorites]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("cookie:viewed", JSON.stringify(viewed));
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem("cookie:viewed", JSON.stringify(viewed)); } catch {}
   }, [viewed]);
 
   const cartItems = cart.filter((row) => row.quantity > 0);
+  const cartCount = cartItems.reduce((sum, r) => sum + r.quantity, 0);
 
   const total = useMemo(() => {
     return cartItems.reduce((sum, row) => {
@@ -161,8 +200,28 @@ export default function LojaPage() {
       return;
     }
 
-    if (!form.name || !form.address || !form.phone || !form.contactEmail || !form.cpf) {
-      setMessage("Complete todos os campos do formulário.");
+    if (!form.name.trim()) {
+      setMessage("Nome é obrigatório e deve ser o mesmo do pagador.");
+      return;
+    }
+
+    if (!isValidEmail(form.contactEmail)) {
+      setMessage("Informe um email válido.");
+      return;
+    }
+
+    if (form.cpf.replace(/\D/g, "").length !== 11) {
+      setMessage("CPF deve ter 11 dígitos.");
+      return;
+    }
+
+    if (form.phone.replace(/\D/g, "").length < 10) {
+      setMessage("Telefone precisa de DDD + número.");
+      return;
+    }
+
+    if (!form.address.trim()) {
+      setMessage("Endereço é obrigatório.");
       return;
     }
 
@@ -171,10 +230,7 @@ export default function LojaPage() {
       return;
     }
 
-    const items = cartItems.map((row) => ({
-      recipeId: row.productId,
-      quantity: row.quantity,
-    }));
+    const items = cartItems.map((row) => ({ recipeId: row.productId, quantity: row.quantity }));
 
     const res = await fetch("/api/loja/orders", {
       method: "POST",
@@ -231,7 +287,7 @@ export default function LojaPage() {
 
   const Stepper = () => (
     <div className="stepper">
-      <div className={`step ${stage === "cart" ? "is-active" : ""} ${stage === "browse" ? "is-active" : ""}`}>
+      <div className={`step ${stage === "cart" || stage === "browse" ? "is-active" : ""}`}>
         <span>1</span> Carrinho
       </div>
       <div className={`step ${stage === "checkout" ? "is-active" : ""}`}>
@@ -256,9 +312,11 @@ export default function LojaPage() {
           <button type="button" onClick={goCart}>Carrinho</button>
         </nav>
         <div className="store-actions">
-          <button className="store-icon-btn" aria-label="Buscar">🔍</button>
-          <Link href="/minha-conta" className="store-icon-btn" aria-label="Favoritos">♡</Link>
-          <button className="store-icon-btn" aria-label="Carrinho" onClick={goCart}>🛍️</button>
+          <button className="store-icon-btn" aria-label="Buscar"><SearchIcon /></button>
+          <Link href="/minha-conta" className="store-icon-btn" aria-label="Favoritos"><HeartIcon /></Link>
+          <button className="store-icon-btn" aria-label="Carrinho" onClick={goCart}>
+            <BagIcon count={cartCount} />
+          </button>
           <div className="store-user" onClick={() => setOpenUserMenu((v) => !v)}>
             {isLogged ? (
               <>
@@ -314,7 +372,7 @@ export default function LojaPage() {
                       onClick={() => toggleFavorite(product.id)}
                       aria-label="Favoritar cookie"
                     >
-                      {isFavorite ? "♥" : "♡"}
+                      <HeartIcon filled={isFavorite} />
                     </button>
                     <div
                       className="store-card-image"
@@ -329,10 +387,12 @@ export default function LojaPage() {
                           -
                         </button>
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           min={0}
                           value={row?.quantity ?? 0}
-                          onChange={(e) => addProduct(product.id, Number(e.target.value) - (row?.quantity ?? 0))}
+                          onChange={(e) => addProduct(product.id, Number(e.target.value.replace(/\D/g, "")) - (row?.quantity ?? 0))}
                         />
                         <button type="button" onClick={() => addProduct(product.id, 1)}>
                           +
@@ -448,13 +508,13 @@ export default function LojaPage() {
                   <input
                     placeholder="CPF"
                     value={form.cpf}
-                    onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                    onChange={(e) => setForm({ ...form, cpf: formatCpfMask(e.target.value) })}
                     required
                   />
                   <input
-                    placeholder="Telefone"
+                    placeholder="Telefone (DD) 90000-0000"
                     value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    onChange={(e) => setForm({ ...form, phone: formatPhoneMask(e.target.value) })}
                     required
                   />
                 </div>
