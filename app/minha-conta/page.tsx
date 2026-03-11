@@ -74,6 +74,7 @@ export default function MinhaContaPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersMessage, setOrdersMessage] = useState("");
   const [codeEmail, setCodeEmail] = useState("");
+  const [recentIds, setRecentIds] = useState<string[]>([]);
 
   const [verifyCode, setVerifyCode] = useState("");
   const [verifyInfo, setVerifyInfo] = useState("");
@@ -112,6 +113,12 @@ export default function MinhaContaPage() {
     } catch {
       setFavorites([]);
     }
+    try {
+      const seen = localStorage.getItem("cookie:viewed");
+      if (seen) setRecentIds(JSON.parse(seen));
+    } catch {
+      setRecentIds([]);
+    }
   }, []);
 
   useEffect(() => {
@@ -145,6 +152,11 @@ export default function MinhaContaPage() {
   const favoriteProducts = useMemo(
     () => products.filter((p) => favorites.includes(p.id)),
     [favorites, products],
+  );
+
+  const recentProducts = useMemo(
+    () => products.filter((p) => recentIds.includes(p.id)),
+    [recentIds, products],
   );
 
   const toggleFavorite = (productId: string) => {
@@ -255,7 +267,7 @@ export default function MinhaContaPage() {
       <header className="account-hero">
         <p className="store-kicker" style={{ color: "#9b612f" }}>Minha conta</p>
         <h1>Favoritos, pedidos e códigos de email</h1>
-        <p>Central para gerenciar pedidos, ver favoritos e validar cada código enviado por email.</p>
+        <p>Central para gerenciar pedidos, ver favoritos, recentes e validar cada código enviado por email.</p>
       </header>
 
       <section className="account-grid">
@@ -276,7 +288,7 @@ export default function MinhaContaPage() {
           )}
         </article>
 
-        <article className="account-card">
+        <article className="account-card" id="favoritos">
           <h3>Favoritos</h3>
           <p className="account-sub">Cookies que você marcou na vitrine.</p>
           {favoriteProducts.length === 0 ? (
@@ -298,7 +310,7 @@ export default function MinhaContaPage() {
           )}
         </article>
 
-        <article className="account-card" style={{ gridColumn: "span 2" }}>
+        <article className="account-card" style={{ gridColumn: "span 2" }} id="pedidos">
           <h3>Pedidos</h3>
           <p className="account-sub">Acompanhe o status.</p>
           {ordersMessage ? <p className="account-sub">{ordersMessage}</p> : null}
@@ -392,6 +404,28 @@ export default function MinhaContaPage() {
             {resetInfo ? <p style={{ color: "#1a7f46" }}>{resetInfo}</p> : null}
             {resetError ? <p style={{ color: "#a33939" }}>{resetError}</p> : null}
           </div>
+        </article>
+
+        <article className="account-card" id="recentes">
+          <h3>Vistos recentemente</h3>
+          <p className="account-sub">Últimos cookies que você abriu na vitrine.</p>
+          {recentProducts.length === 0 ? (
+            <p className="account-sub">Nada visto ainda. Clique em qualquer cookie na loja.</p>
+          ) : (
+            <div className="favorite-list">
+              {recentProducts.map((product) => (
+                <div key={product.id} className="favorite-card">
+                  <div>
+                    <strong>{product.name}</strong>
+                    <div className="muted">{formatMoney(product.priceSell)}</div>
+                  </div>
+                  <Link className="account-link" href="/loja">
+                    Ver na loja
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </article>
       </section>
     </div>

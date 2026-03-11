@@ -970,3 +970,58 @@ a {
   color: #9b612f;
   font-weight: 700;
 }
+/* Conta / header hover */
+.store-user {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #e8d8c9;
+}
+
+.store-user-name {
+  font-weight: 700;
+}
+
+.store-user-icon {
+  font-size: 18px;
+}
+
+.store-user-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  color: #2f241c;
+  border: 1px solid #e4ddd5;
+  border-radius: 12px;
+  padding: 10px;
+  min-width: 180px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+  z-index: 20;
+}
+
+.store-user-menu a,
+.store-user-menu button {
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: 6px;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.store-user-menu a:hover,
+.store-user-menu button:hover {
+  background: #f7f4f1;
+  border-radius: 8px;
+}
+
+.store-login-link {
+  color: #f6eee6;
+  font-weight: 700;
+}
