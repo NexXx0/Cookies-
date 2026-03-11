@@ -68,24 +68,6 @@ export default function LojaPage() {
   const [loading, setLoading] = useState(true);
   const [openUserMenu, setOpenUserMenu] = useState(false);
 
-  const heroTiles = [
-    {
-      title: "Box Degustação",
-      description: "6 cookies quentinhos, massa de baunilha e recheios cremosos.",
-      image: "https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=1600&q=80",
-    },
-    {
-      title: "Linha Zero Açúcar",
-      description: "Eritritol + chocolate 70%. Doce leve e sem culpa.",
-      image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=1600&q=80",
-    },
-    {
-      title: "Cookie Shot",
-      description: "Copo de cookie + ganache quente. Presente certeiro.",
-      image: "https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=1600&q=80",
-    },
-  ];
-
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => res.json())
@@ -244,6 +226,12 @@ export default function LojaPage() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleAddAndGoCart = (productId: string, currentQty: number) => {
+    if (currentQty <= 0) addProduct(productId, 1);
+    setCartMessage("Cookie adicionado ao carrinho.");
+    setStage("cart");
+  };
+
   return (
     <div className="store-page">
       <div className="store-topbar">
@@ -253,7 +241,6 @@ export default function LojaPage() {
         </div>
         <nav className="store-nav">
           <button type="button" onClick={scrollToMenu}>Catálogo</button>
-          <a href="#destaques">Destaques</a>
           <a href="#cardapio">Sabores</a>
         </nav>
         <div className="store-actions">
@@ -270,7 +257,7 @@ export default function LojaPage() {
                 <span className="store-user-name">Olá, {userName || "cliente"}</span>
                 <span className="store-user-icon">👤</span>
                 {openUserMenu ? (
-                  <div className="store-user-menu">
+                  <div className="store-user-menu" onMouseEnter={() => setOpenUserMenu(true)} onMouseLeave={() => setOpenUserMenu(false)}>
                     <Link href="/minha-conta">Minha conta</Link>
                     <Link href="/minha-conta#pedidos">Meus pedidos</Link>
                     <Link href="/minha-conta#favoritos">Meus favoritos</Link>
@@ -295,13 +282,13 @@ export default function LojaPage() {
       </div>
 
       {/* Catálogo primeiro */}
-      <main id="cardapio" className="store-shell">
+      <main id="cardapio" className="store-shell" style={{ paddingTop: 10 }}>
         <section className="store-products">
           <div className="store-products-header">
             <div>
               <p className="store-kicker">Catálogo</p>
               <h2>Cookies artesanais prontos para pedir</h2>
-              <p className="store-muted">Escolha sabores, favorite, veja recentes e finalize no carrinho.</p>
+              <p className="store-muted">Adicione e já visualize o carrinho ao lado.</p>
             </div>
           </div>
           {loading ? (
@@ -315,7 +302,7 @@ export default function LojaPage() {
                   <article key={product.id} className="store-card">
                     <button
                       type="button"
-                      className={`store-fav ${isFavorite ? "is-active" : ""}`}
+                      className={store-fav }
                       onClick={() => toggleFavorite(product.id)}
                       aria-label="Favoritar cookie"
                     >
@@ -323,7 +310,7 @@ export default function LojaPage() {
                     </button>
                     <div
                       className="store-card-image"
-                      style={{ backgroundImage: `url(${product.image || fallbackProducts[0].image})` }}
+                      style={{ backgroundImage: url() }}
                       onClick={() => markViewed(product.id)}
                     />
                     <div className="store-card-body">
@@ -346,12 +333,9 @@ export default function LojaPage() {
                       <button
                         type="button"
                         className="store-cta block"
-                        onClick={() => {
-                          if ((row?.quantity ?? 0) <= 0) addProduct(product.id, 1);
-                          setCartMessage("Cookie adicionado ao carrinho.");
-                        }}
+                        onClick={() => handleAddAndGoCart(product.id, row?.quantity ?? 0)}
                       >
-                        Adicionar ao carrinho
+                        Adicionar e ir para carrinho
                       </button>
                     </div>
                   </article>
@@ -398,77 +382,14 @@ export default function LojaPage() {
           <button type="button" className="store-cta block" onClick={proceedToCart}>
             Ver carrinho
           </button>
-          {cartMessage ? <p className="store-message">{cartMessage}</p> : null}
-          {stage === "cart" && (
+          {cartItems.length > 0 && (
             <button type="button" className="store-ghost full" onClick={proceedToCheckout}>
               Continuar para pagamento
             </button>
           )}
+          {cartMessage ? <p className="store-message">{cartMessage}</p> : null}
         </aside>
       </main>
-
-      <header className="store-hero" id="destaques">
-        <div className="store-hero-content">
-          <div className="store-badges">
-            <span className="store-badge">Semana do Cookie</span>
-            <span className="store-badge ghost">Sem corantes</span>
-          </div>
-          <h1>Cookies artesanais, assados sob medida</h1>
-          <p>Visual inspirado na vitrine Nike, mas só com cookies. Escolha, favorite, veja recentes e finalize com PIX.</p>
-          <div className="store-hero-actions">
-            <button type="button" className="store-cta" onClick={scrollToMenu}>
-              Ver sabores
-            </button>
-            <button type="button" className="store-ghost" onClick={() => setStage("cart")}>
-              Ir para o resumo
-            </button>
-          </div>
-          <div className="store-steps">
-            <div className={`store-step ${stage === "browse" ? "is-active" : ""}`}>1. Escolher</div>
-            <div className={`store-step ${stage === "cart" ? "is-active" : ""}`}>2. Carrinho</div>
-            <div className={`store-step ${stage === "checkout" ? "is-active" : ""}`}>3. Dados</div>
-          </div>
-        </div>
-        <div className="store-hero-tiles">
-          {heroTiles.map((tile, index) => (
-            <article key={tile.title} className="hero-card" style={{ backgroundImage: `url(${tile.image})` }}>
-              <div className="hero-card-overlay">
-                <p className="hero-card-kicker">Cookie drop #{index + 1}</p>
-                <h3>{tile.title}</h3>
-                <p>{tile.description}</p>
-                <button type="button" className="store-cta small" onClick={scrollToMenu}>
-                  Pedir agora
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </header>
-
-      <section className="store-feature-grid">
-        <article className="feature-card">
-          <div className="feature-copy">
-            <p className="feature-kicker">Coleção Limitada</p>
-            <h2>Cookie Caramelo queimado</h2>
-            <p>Com flor de sal e miolo puxando. Fotos grandes como a vitrine Nike.</p>
-            <button type="button" className="store-cta" onClick={scrollToMenu}>
-              Comprar
-            </button>
-          </div>
-          <div className="feature-image" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1509460913899-515f1df34fea?auto=format&fit=crop&w=1400&q=80)" }} />
-        </article>
-        <article className="feature-card alt">
-          <div className="feature-copy">
-            <p className="feature-kicker">Box Presente</p>
-            <h2>Assinatura semanal</h2>
-            <p>Curadoria de sabores, embalados a vácuo e entregues frescos. Personalize quantidades.</p>
-            <button type="button" className="store-ghost dark" onClick={proceedToCart}>
-              Ver carrinho
-            </button>
-          </div>
-          <div className="feature-image" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=1400&q=80)" }} />
-        </article>
-      </section>
 
       {stage === "checkout" && (
         <section className="store-checkout" style={{ maxWidth: 900, margin: "0 auto 40px", padding: 22 }}>
