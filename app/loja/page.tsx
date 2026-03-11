@@ -28,6 +28,7 @@ type MeResponse = {
     id: string;
     name: string;
     email: string;
+    emailVerifiedAt?: string | null;
   } | null;
 };
 
@@ -74,19 +75,22 @@ const BagIcon = ({ count }: { count: number }) => (
 
 function formatCpfMask(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
-  const parts = [] as string[];
-  if (digits.length > 0) parts.push(digits.slice(0, 3));
-  if (digits.length > 3) parts.push(digits.slice(3, 6));
-  if (digits.length > 6) parts.push(digits.slice(6, 9));
-  const last = digits.slice(9, 11);
-  return [parts.filter(Boolean).join("."), last ? `-${last}` : ""].join("" ).replace(/^\./, "");
+  const p1 = digits.slice(0, 3);
+  const p2 = digits.slice(3, 6);
+  const p3 = digits.slice(6, 9);
+  const p4 = digits.slice(9, 11);
+  let out = p1;
+  if (p2) out += `.${p2}`;
+  if (p3) out += `.${p3}`;
+  if (p4) out += `-${p4}`;
+  return out;
 }
 
 function formatPhoneMask(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 7) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
-  return `${digits.slice(0, 2)} ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d;
+  if (d.length <= 7) return `${d.slice(0, 2)} ${d.slice(2)}`;
+  return `${d.slice(0, 2)} ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
 function isValidEmail(email: string) {
@@ -109,6 +113,7 @@ export default function LojaPage() {
   const [stage, setStage] = useState<"browse" | "cart" | "checkout">("browse");
   const [isLogged, setIsLogged] = useState(false);
   const [userName, setUserName] = useState("");
+  const [emailVerified, setEmailVerified] = useState(false);
   const [message, setMessage] = useState("");
   const [cartMessage, setCartMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -120,6 +125,7 @@ export default function LojaPage() {
       .then((data: MeResponse) => {
         setIsLogged(!!data?.user);
         if (data?.user?.name) setUserName(data.user.name.split(" ")[0]);
+        setEmailVerified(!!data?.user?.emailVerifiedAt);
       })
       .catch(() => setIsLogged(false));
 
@@ -313,7 +319,7 @@ export default function LojaPage() {
         </nav>
         <div className="store-actions">
           <button className="store-icon-btn" aria-label="Buscar"><SearchIcon /></button>
-          <Link href="/minha-conta" className="store-icon-btn" aria-label="Favoritos"><HeartIcon /></Link>
+          <Link href="/minha-conta#favoritos" className="store-icon-btn" aria-label="Favoritos"><HeartIcon /></Link>
           <button className="store-icon-btn" aria-label="Carrinho" onClick={goCart}>
             <BagIcon count={cartCount} />
           </button>

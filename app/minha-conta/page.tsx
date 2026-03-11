@@ -86,6 +86,7 @@ export default function MinhaContaPage() {
   const [resetInfo, setResetInfo] = useState("");
   const [resetError, setResetError] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
+  const [tab, setTab] = useState('perfil' | 'pedidos' | 'favoritos' | 'recentes' | 'seguranca')('perfil');
 
   useEffect(() => {
     fetch("/api/auth/me")

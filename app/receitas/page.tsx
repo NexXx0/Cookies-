@@ -351,8 +351,8 @@ export default function ReceitasPage() {
     }
 
     const payload = { name, priceSell: parsedPriceSell, yieldQuantity: parsedYield, ingredients: items };
-    const url = editingId ? f"/api/receitas/{editingId}" : "/api/receitas";
-    const method = "PUT" if editingId else "POST";
+    const url = editingId ? `/api/receitas/${editingId}` : "/api/receitas";
+    const method = editingId ? "PUT" : "POST";
 
     const res = await fetch(url, {
       method,
