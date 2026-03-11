@@ -1259,3 +1259,49 @@ a {
   font-weight: 700;
   border: 1px solid #fff;
 }
+.tab-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.tab-btn { border:1px solid #e4ddd5; background:#fff; border-radius:10px; padding:8px 12px; cursor:pointer; }
+.tab-btn.is-active { background:#9b612f; color:#fff; border-color:#9b612f; }
+/* Store monochrome theme override */
+.store-page { background: #f7f7f7; color: #111; }
+.store-topbar { background: #ffffff; border: 1px solid #e6e6e6; box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
+.store-brand span:last-child { color: #111; }
+.store-nav a, .store-nav button { color: #444; }
+.store-nav a:hover, .store-nav button:hover { color: #000; }
+.store-card { background: #ffffff; border: 1px solid #ebebeb; box-shadow: 0 12px 24px rgba(0,0,0,0.05); }
+.store-card-image { filter: none; }
+.store-price { color: #111; }
+.store-cta { background: #111; color: #fff; box-shadow: 0 8px 16px rgba(0,0,0,0.18); }
+.store-cta:hover { background: #000; }
+.store-ghost { background: #fff; color: #111; border: 1px solid #ddd; }
+.store-step.is-active { background: #111; color: #fff; }
+.store-step { background: #f0f0f0; color: #555; border: 1px solid #e5e5e5; }
+.cart-summary-panel, .checkout-form-panel, .cart-items, .checkout-products { background: #ffffff; border: 1px solid #e6e6e6; }
+.store-badge { background: #111; color: #fff; border-color: #111; }
+.store-badge.ghost { background: #f0f0f0; color: #111; border-color: #e0e0e0; }
+.store-pill { background: #111; color: #fff; }
+.store-pill.dark { background: #000; color: #fff; border-color: #000; }
+/* Apple-inspired minimal theme overrides */
+body, .store-page, .account-page { font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.store-page { background: #f5f5f7; color: #111; }
+.store-topbar { background: rgba(255,255,255,0.92); border: 1px solid #e5e5e7; box-shadow: 0 8px 30px rgba(0,0,0,0.06); border-radius: 14px; }
+.store-brand span:last-child { font-weight: 700; letter-spacing: -0.01em; color: #111; }
+.store-nav a, .store-nav button { color: #3c3c43; font-weight: 600; }
+.store-nav a:hover, .store-nav button:hover { color: #111; }
+.store-card { background: #ffffff; border: 1px solid #e5e5e7; box-shadow: 0 10px 24px rgba(0,0,0,0.05); border-radius: 18px; }
+.store-card-image { filter: none; }
+.store-price { color: #111; font-weight: 700; }
+.store-cta { background: #111; color: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); font-weight: 700; }
+.store-cta:hover { background: #000; }
+.store-ghost { background: #fff; color: #111; border: 1px solid #d2d2d7; border-radius: 12px; }
+.store-step { background: #f2f2f7; color: #6e6e73; border: 1px solid #e5e5ea; }
+.store-step.is-active { background: #111; color: #fff; }
+.cart-summary-panel, .checkout-form-panel, .cart-items, .checkout-products { background: #ffffff; border: 1px solid #e5e5e7; box-shadow: 0 12px 30px rgba(0,0,0,0.05); }
+.store-badge { background: #111; color: #fff; border-color: #111; letter-spacing: 0.08em; }
+.store-badge.ghost { background: #f2f2f7; color: #111; border-color: #e5e5ea; }
+.store-pill, .store-pill.dark { background: #111; color: #fff; border-color: #111; }
+.tab-btn { background: #ffffff; border: 1px solid #e5e5e7; color: #3c3c43; border-radius: 10px; }
+.tab-btn.is-active { background: #111; color: #fff; border-color: #111; }
+.account-card { border: 1px solid #e5e5e7; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+.account-link { color: #0071e3; }
+.store-icon-btn { background: #fff; border: 1px solid #e5e5e7; border-radius: 12px; }

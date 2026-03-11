@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+﻿import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { authConstants, hashToken } from "@/lib/auth";
 
@@ -6,6 +6,7 @@ export type AuthUser = {
   id: string;
   email: string;
   name: string;
+  emailVerifiedAt: Date | null;
 };
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -25,6 +26,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
           id: true,
           email: true,
           name: true,
+          emailVerifiedAt: true,
         },
       },
     },
