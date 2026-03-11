@@ -302,7 +302,7 @@ export default function LojaPage() {
                   <article key={product.id} className="store-card">
                     <button
                       type="button"
-                      className={store-fav }
+                      className={`store-fav ${isFavorite ? "is-active" : ""}`}
                       onClick={() => toggleFavorite(product.id)}
                       aria-label="Favoritar cookie"
                     >
@@ -310,7 +310,7 @@ export default function LojaPage() {
                     </button>
                     <div
                       className="store-card-image"
-                      style={{ backgroundImage: url() }}
+                      style={{ backgroundImage: `url(${product.image || fallbackProducts[0].image})` }}
                       onClick={() => markViewed(product.id)}
                     />
                     <div className="store-card-body">
