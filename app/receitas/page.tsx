@@ -172,6 +172,7 @@ export default function ReceitasPage() {
   const [inputMode, setInputMode] = useState<RecipeInputMode>("manual");
   const [readyText, setReadyText] = useState("");
   const [unitWeightGrams, setUnitWeightGrams] = useState("100");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -297,6 +298,37 @@ export default function ReceitasPage() {
     setItems(items.filter((x) => x.ingredientId !== ingredientId));
   };
 
+  const startEdit = (recipe: Recipe) => {
+    setEditingId(recipe.id);
+    setName(recipe.name);
+    setYieldQuantity(String(recipe.yieldQuantity));
+    setPriceSell(String(recipe.priceSell));
+    setItems(recipe.ingredients.map((ing) => ({ ingredientId: ing.ingredient.id, grams: ing.grams })));
+    setInputMode("manual");
+    setMessage("Editando receita. Salve ou cancele.");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setName("");
+    setPriceSell("");
+    setYieldQuantity("1");
+    setItems([]);
+    setReadyText("");
+    setMessage("");
+  };
+
+  const deleteRecipe = async (id: string) => {
+    if (!confirm("Deseja excluir esta receita?")) return;
+    const res = await fetch(`/api/receitas/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setMessage("Nao foi possivel excluir a receita.");
+      return;
+    }
+    if (editingId === id) cancelEdit();
+    await loadData();
+  };
+
   const getRecipeTarget = (recipe: Recipe) => {
     const raw = recipeTargets[recipe.id];
     const parsed = Number(raw);
@@ -318,19 +350,18 @@ export default function ReceitasPage() {
       return;
     }
 
-    const res = await fetch("/api/receitas", {
-      method: "POST",
+    const payload = { name, priceSell: parsedPriceSell, yieldQuantity: parsedYield, ingredients: items };
+    const url = editingId ? f"/api/receitas/{editingId}" : "/api/receitas";
+    const method = "PUT" if editingId else "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        priceSell: parsedPriceSell,
-        yieldQuantity: parsedYield,
-        ingredients: items,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
-      setMessage("Nao foi possivel cadastrar a receita.");
+      setMessage("Nao foi possivel salvar a receita.");
       return;
     }
 
@@ -339,7 +370,8 @@ export default function ReceitasPage() {
     setYieldQuantity("1");
     setItems([]);
     setReadyText("");
-    setMessage("Receita cadastrada com sucesso.");
+    setEditingId(null);
+    setMessage("Receita salva com sucesso.");
     await loadData();
   };
 
@@ -351,7 +383,13 @@ export default function ReceitasPage() {
       </section>
 
       <section className="panel section" style={{ marginTop: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Nova receita</h2>
+        <h2 style={{ marginTop: 0 }}>{editingId ? "Editar receita" : "Nova receita"}</h2>
+        {editingId ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span className="muted">Editando: {name}</span>
+            <button type="button" className="btn" onClick={cancelEdit}>Cancelar edicao</button>
+          </div>
+        ) : null}
         <form onSubmit={onCreate} style={{ display: "grid", gap: 10 }}>
           <input className="input" placeholder="Nome da receita (ex: Cookie de Chocolate)" value={name} onChange={(e) => setName(e.target.value)} required />
 
@@ -472,7 +510,7 @@ export default function ReceitasPage() {
 
           {message && <p style={{ margin: 0 }}>{message}</p>}
 
-          <button className="btn btn-primary" type="submit">Cadastrar receita</button>
+          <button className="btn btn-primary" type="submit">{editingId ? "Salvar alteracoes" : "Cadastrar receita"}</button>
         </form>
       </section>
 
@@ -494,6 +532,11 @@ export default function ReceitasPage() {
                     <p className="muted" style={{ margin: "4px 0 0" }}>Rendimento: {receita.yieldQuantity} unid.</p>
                   </div>
                   <span className="pill">Margem {margem.toFixed(0)}%</span>
+                </div>
+
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button type="button" className="btn" onClick={() => startEdit(receita)}>Editar</button>
+                  <button type="button" className="btn" onClick={() => deleteRecipe(receita.id)}>Excluir</button>
                 </div>
 
                 <div className="grid cards-3" style={{ marginTop: 16 }}>
